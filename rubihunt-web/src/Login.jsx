@@ -1,26 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from './api'; // <--- Importando a configuração inteligente
 
 export function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
-  const navigate = useNavigate(); // Hook para mudar de página
+  const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
 
-    fetch('http://localhost:8080/auth/login', {
+    // Usa a API_URL em vez do localhost fixo
+    fetch(`${API_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: password })
     })
     .then(response => {
       if (response.ok) {
-        // Se deu certo, salva o "crachá" no navegador
         localStorage.setItem('adminToken', 'LOGADO');
-        navigate('/admin'); // Manda para o painel
+        navigate('/admin');
       } else {
-        setError(true); // Mostra erro
+        setError(true);
       }
     })
     .catch(() => setError(true));
