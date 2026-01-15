@@ -1,86 +1,75 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export function HuntCard({ id, title, vocation, level, xp, profit, imgUrl, onDelete, onEdit }) {
   
-  // Garante que vocation seja uma string para evitar erros se vier vazio do banco
-  const vocationList = vocation ? vocation.split(',') : [];
+  // Verifica se é administrador
+  const isAdmin = localStorage.getItem('adminToken') === 'LOGADO';
 
   return (
-    <div className="relative bg-rubi-card border border-gray-700 rounded-lg overflow-hidden hover:border-gray-500 transition-all w-80 shadow-lg group">
+    <div className="bg-rubi-card border border-gray-700 rounded-lg overflow-hidden w-full sm:w-80 flex flex-col hover:border-rubi-green transition-all shadow-lg group relative">
       
-      {/* --- BOTÕES DE AÇÃO (Topo Direito) --- */}
-      {/* Z-Index 20 para garantir que fiquem acima do link de navegação */}
-      <div className="absolute top-2 right-2 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        
-        {/* Botão EDITAR (Azul) */}
-        <button 
-          onClick={(e) => {
-            e.preventDefault(); // Impede que abra a página de detalhes ao clicar no botão
-            onEdit();
-          }}
-          className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-md transition-colors"
-          title="Editar Hunt"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
-
-        {/* Botão DELETAR (Vermelho) */}
-        <button 
-          onClick={(e) => {
-            e.preventDefault(); // Impede que abra a página de detalhes
-            onDelete();
-          }}
-          className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-md transition-colors"
-          title="Deletar Hunt"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+      {/* Imagem */}
+      <div className="h-40 overflow-hidden relative">
+        <img 
+          src={imgUrl || "https://via.placeholder.com/400x200"} 
+          alt={title} 
+          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+        />
+        <div className="absolute bottom-0 left-0 bg-gradient-to-t from-black/80 to-transparent w-full p-2">
+           <span className="text-white font-bold text-shadow">{title}</span>
+        </div>
       </div>
 
-      {/* --- ÁREA NAVEGÁVEL (Link para Detalhes) --- */}
-      <Link to={`/hunts/${id}`} className="block h-full">
-
-        {/* Imagem do Local */}
-        <div className="h-32 bg-gray-800 relative">
-          <img 
-            src={imgUrl || "https://via.placeholder.com/320x150?text=Sem+Imagem"} 
-            alt={title} 
-            className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-          />
-          
-          {/* --- Vocações (Badges Múltiplas) --- */}
-          <div className="absolute bottom-2 left-2 flex gap-1 flex-wrap pr-2">
-            {vocationList.map(voc => (
-              <span key={voc} className="bg-black/70 text-[10px] px-2 py-1 rounded text-white font-bold border border-gray-600 backdrop-blur-sm">
+      {/* Corpo do Card */}
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex flex-wrap gap-1 mb-2">
+            {vocation.split(',').map(voc => (
+              <span key={voc} className="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded border border-gray-700">
                 {voc}
               </span>
             ))}
           </div>
-        </div>
-
-        {/* Conteúdo (Texto) */}
-        <div className="p-4">
-          <h3 className="text-lg font-bold text-white mb-1 truncate" title={title}>{title}</h3>
-          <p className="text-xs text-gray-400 mb-4">Level sugerido: <span className="text-white font-semibold">{level}</span></p>
-
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="bg-black/30 p-2 rounded border border-gray-800">
-              <p className="text-gray-500 text-[10px] uppercase tracking-wider">XP/Hora</p>
-              <p className="font-bold text-gray-200">{xp}</p>
+          
+          <div className="grid grid-cols-2 gap-2 text-sm text-gray-400 mb-4">
+            <div>
+              <p className="text-xs uppercase font-bold text-gray-600">Level</p>
+              <p className="text-white">{level}</p>
             </div>
-            <div className="bg-black/30 p-2 rounded border border-gray-800">
-              <p className="text-gray-500 text-[10px] uppercase tracking-wider">Lucro/Hora</p>
-              <p className="font-bold text-rubi-green">{profit}</p>
+            <div>
+              <p className="text-xs uppercase font-bold text-gray-600">XP</p>
+              <p className="text-rubi-green">{xp}</p>
             </div>
           </div>
         </div>
 
-      </Link>
+        {/* Botão Ver Detalhes */}
+        <Link 
+          to={`/hunts/${id}`}
+          className="block w-full text-center bg-gray-800 hover:bg-gray-700 text-white text-sm py-2 rounded transition-colors mb-2"
+        >
+          Ver Detalhes
+        </Link>
+
+        {/* --- ÁREA RESTRITA AO ADMIN --- */}
+        {/* Só mostra estes botões se for admin */}
+        {isAdmin && (
+          <div className="flex gap-2 border-t border-gray-700 pt-3 mt-1">
+            <button 
+              onClick={onEdit}
+              className="flex-1 bg-blue-900/30 hover:bg-blue-600 text-blue-200 hover:text-white text-xs py-1.5 rounded border border-blue-900 transition-colors"
+            >
+              ✎ Editar
+            </button>
+            <button 
+              onClick={onDelete}
+              className="flex-1 bg-red-900/30 hover:bg-red-600 text-red-200 hover:text-white text-xs py-1.5 rounded border border-red-900 transition-colors"
+            >
+              🗑 Excluir
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
